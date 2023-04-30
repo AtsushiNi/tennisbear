@@ -26,9 +26,11 @@ function GoogleMap(props) {
         center={props.places[0]}
         zoom={10}
       >
-        {props.places.map(place => (
+        {props.places.map((place, index) => (
           <Marker
+            key={index}
             position={place}
+            opacity={index === props.hoverIndex ? 1 : 0.2}
           />
         ))}
       </Map>

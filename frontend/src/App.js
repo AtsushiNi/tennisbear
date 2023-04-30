@@ -13,6 +13,7 @@ function App() {
   const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
   const [isOpen, setIsOpen] = useState(true)
   const [pagination, setPagination] = useState({current: 1, pageSize: 10})
+  const [hoverIndex, setHoverIndex] = useState(null)
 
   const onChangeDate = date => {
     if(!date) {
@@ -91,6 +92,7 @@ function App() {
 
   const data = events.map((event, index) => ({
     key: index,
+    id: event.id,
     avatarSrc: event.imageUrl,
     organizer: event.organizer.name,
     datetime: event.datetimeForDisplay,
@@ -144,10 +146,17 @@ function App() {
                   else return "table-row-light"
                   }}
                 onChange={pagination => setPagination(pagination)}
+                onRow={(record,index) => {
+                  return {
+                    onClick: event => window.open("https://www.tennisbear.net/event/" + record.id + "/info", "_blank"),
+                    onMouseEnter: event => setHoverIndex(index),
+                    onMouseLeave: event => setHoverIndex()
+                  }
+                }}
                 />
             </Col>
             <Col>
-              <GoogleMap places={places} />
+              <GoogleMap places={places} hoverIndex={hoverIndex}/>
             </Col>
           </Row>
         </div>
