@@ -54,7 +54,8 @@ class ApplicationController < ActionController::API
       "anyoneRegisterable":false
     }
 
-    body[:dateList] = [params[:day]]
+    body[:dateList] = [params[:date]]
+    body[:isOpen] = params[:isOpen]
     req.body = JSON.generate(body)
 
     res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|

@@ -4,24 +4,45 @@ import './App.css';
 
 import GoogleMap from './Components/GoogleMap'
 
-import { Row, Col, Button, Table, Avatar } from 'antd'
+import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker } from 'antd'
+
+const dayjs = require("dayjs")
 
 function App() {
   const [events, setEvents] = useState([])
-  useEffect(() => {
-    const today = new Date()
-    const month = ("0" + (today.getMonth() + 1)).slice(-2)
-    const date =  ("0" + today.getDate()).slice(-2)
+  const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
+  const [isOpen, setIsOpen] = useState(true)
 
-    const params = {day: today.getFullYear() + "-" + month + "-" + date}
+  const onChangeDate = date => {
+    if(!date) {
+      setDate(dayjs().format("YYYY-MM-DD"))
+    } else {
+      setDate(date.format("YYYY-MM-DD"))
+    }
+  }
+
+  const onChangeIsOpen = event => {
+    if(isOpen) {
+      setIsOpen(false)
+    } else {
+      setIsOpen(true)
+    }
+  }
+
+  useEffect(() => {
+    const params = { date: date, isOpen: isOpen }
     const query = new URLSearchParams(params)
+
     const searchEvents = async() => {
       let response =  await fetch("http://localhost:5000/search?"+query)
       const newEvents = await response.json()
+
+      console.log("search with tennisbear API")
+
       setEvents(newEvents)
     }
     searchEvents()
-  },[])
+  }, [date, isOpen])
 
   const columns = [
     {
@@ -29,8 +50,8 @@ function App() {
       dataIndex: "organizer",
       key: "organizer",
       render: (text, { avatarSrc }) => {
-        if(text.length <= 10) return <><td><Avatar src={avatarSrc} /></td><td style={{fontSize: "5px"}}>{text}</td></>
-        return <><td><Avatar src={avatarSrc} /></td><td style={{fontSize: "5px"}}>{text.substr(0,8) + ".."}</td></>
+        if(text.length <= 10) return <><Avatar src={avatarSrc} /><p style={{fontSize: "5px"}}>{text}</p></>
+        return <><Avatar src={avatarSrc} /><p style={{fontSize: "5px"}}>{text.substr(0,8) + ".."}</p></>
       }
     },
     {
@@ -44,8 +65,8 @@ function App() {
       dataIndex: "title",
       key: "title",
       render: text => {
-        if(text.length <= 30) return <td style={{fontSize: "10px"}}>{text}</td>
-        return <td style={{fontSize: "10px"}}>{text.substr(0,30) + ".."}</td>
+        if(text.length <= 30) return <p style={{fontSize: "10px"}}>{text}</p>
+        return <p style={{fontSize: "10px"}}>{text.substr(0,30) + ".."}</p>
       }
     },
     {
@@ -64,20 +85,34 @@ function App() {
     level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id
   }))
 
+  const theme = {
+    token: {
+      colorPrimary: "#00B86B"
+    }
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-      </header>
-      <body>
+      <ConfigProvider theme={theme}>
         <div style={{margin: "50px"}}>
           <Row>
             <Col>
-              <Button type="primary">東京都</Button>
+              <Button type="primary" style={{"fontWeight": "bold"}}>東京都</Button>
             </Col>
-          </Row>
-          <Row>
             <Col>
-              <Button type="primary">東京都</Button>
+              <DatePicker
+                defaultValue={dayjs()}
+                format={'MM/DD'}
+                onChange={onChangeDate}
+              />
+            </Col>
+            <Col>
+              <Button
+                type={isOpen ? "primary" : "default"}
+                onClick={onChangeIsOpen}
+              >
+                募集中
+              </Button>
             </Col>
           </Row>
 
@@ -90,7 +125,7 @@ function App() {
             </Col>
           </Row>
         </div>
-      </body>
+      </ConfigProvider>
     </div>
   );
 }
