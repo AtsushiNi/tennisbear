@@ -79,8 +79,8 @@ function App() {
       dataIndex: "title",
       key: "title",
       render: text => {
-        if(text.length <= 30) return <p style={{fontSize: "10px"}}>{text}</p>
-        return <p style={{fontSize: "10px"}}>{text.substr(0,30) + ".."}</p>
+        if(text.length <= 30) return <p style={{fontSize: "12px"}}>{text}</p>
+        return <p style={{fontSize: "12px"}}>{text.substr(0,30) + ".."}</p>
       }
     },
     {
@@ -141,6 +141,9 @@ function App() {
               <Table
                 dataSource={data}
                 columns={columns}
+                pagination={{pageSize: 20}}
+                scroll={{y: 600}}
+                style={{marginRight: "50px"}}
                 rowClassName={(record, index) => {
                   if(record.isFull) return "table-row-dark"
                   else return "table-row-light"
