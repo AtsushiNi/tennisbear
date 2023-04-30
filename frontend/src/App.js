@@ -31,6 +31,7 @@ function App() {
     }
   }
 
+  // イベント一覧の取得
   useEffect(() => {
     const params = { date: date, isOpen: isOpen }
     const query = new URLSearchParams(params)
@@ -42,9 +43,37 @@ function App() {
       console.log("search with tennisbear API")
 
       setEvents(newEvents)
+      fetchEventDetails(newEvents)
     }
     searchEvents()
+
   }, [date, isOpen])
+
+  const fetchEventDetails = async(oldEvents = events) => {
+    console.log("fetch Event details")
+    const ids = oldEvents
+      .slice((pagination.current-1) * pagination.pageSize, pagination.current * pagination.pageSize)
+      .filter(event => !("detail" in event))
+      .map(event => event.id)
+    const details = await Promise.all(
+      ids.map(id => fetch("http://localhost:5000/events/" + id).then(res => res.json()))
+    )
+
+    // state更新
+    const newEvents = oldEvents.map(event => {
+      if(ids.includes(event.id)) {
+        event.detail = details.find(detail => detail.id === event.id)
+        return event
+      } else {
+        return event
+      }
+    })
+    setEvents(newEvents)
+  }
+  // イベント詳細一覧の取得
+  useEffect(() => {
+    fetchEventDetails()
+  }, [pagination])
 
   const columns = [
     {
