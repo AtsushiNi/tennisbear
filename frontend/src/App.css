@@ -15,3 +15,6 @@
 table{
   width: auto !important;
 }
+.ant-table-wrapper {
+  margin: 0px !important;
+}

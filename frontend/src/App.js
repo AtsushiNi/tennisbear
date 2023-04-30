@@ -122,9 +122,9 @@ function App() {
       key: "participants",
       render: data => {
         if(data == null) return <Spin />
-        else if(data == "非公開") return "非公開"
+        else if(data == "非公開") return <div style={{fontSize: "10px"}}>"非公開"</div>
         else return (
-          <div style={{flex: "left", display: "flex"}}>
+          <div style={{flex: "left", display: "flex", fontSize: "10px"}}>
             {data.map(user =>
               <div style={{marginRight: "10px"}}>
                 <div>{user.age ? user.age.name : "非公開"}</div>
@@ -187,29 +187,34 @@ function App() {
   return (
     <div className="App">
       <ConfigProvider theme={theme}>
-        <div style={{margin: "50px"}}>
+        <div style={{margin: "30px"}}>
           <Row>
-            <Col>
-              <Button type="primary" style={{"fontWeight": "bold"}}>東京都</Button>
+            <Col style={{maxWidth: "340px", marginRight: "10px"}}>
+              <Row style={{marginBottom: "20px"}}>
+                <Button type="primary" style={{"fontWeight": "bold", width: "130px"}}>東京都</Button>
+              </Row>
+              <Row style={{marginBottom: "20px"}}>
+                <DatePicker
+                  defaultValue={dayjs()}
+                  format={'MM/DD'}
+                  onChange={onChangeDate}
+                  style={{width: "130px"}}
+                />
+              </Row>
+              <Row style={{marginBottom: "60px"}}>
+                <Button
+                  type={isOpen ? "primary" : "default"}
+                  onClick={onChangeIsOpen}
+                  style={{width: "130px"}}
+                >
+                  募集中
+                </Button>
+              </Row>
+              <Row>
+                <GoogleMap places={places} hoverIndex={hoverIndex}/>
+              </Row>
             </Col>
-            <Col>
-              <DatePicker
-                defaultValue={dayjs()}
-                format={'MM/DD'}
-                onChange={onChangeDate}
-              />
-            </Col>
-            <Col>
-              <Button
-                type={isOpen ? "primary" : "default"}
-                onClick={onChangeIsOpen}
-              >
-                募集中
-              </Button>
-            </Col>
-          </Row>
 
-          <Row>
             <Col>
               <Table
                 dataSource={data}
@@ -230,9 +235,6 @@ function App() {
                   }
                 }}
                 />
-            </Col>
-            <Col>
-              <GoogleMap places={places} hoverIndex={hoverIndex}/>
             </Col>
           </Row>
         </div>
