@@ -4,7 +4,7 @@ import './App.css';
 
 import GoogleMap from './Components/GoogleMap'
 
-import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker } from 'antd'
+import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin } from 'antd'
 
 const dayjs = require("dayjs")
 
@@ -12,7 +12,7 @@ function App() {
   const [events, setEvents] = useState([])
   const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
   const [isOpen, setIsOpen] = useState(true)
-  const [pagination, setPagination] = useState({current: 1, pageSize: 10})
+  const [pagination, setPagination] = useState({current: 1, pageSize: 20})
   const [hoverIndex, setHoverIndex] = useState(null)
 
   const onChangeDate = date => {
@@ -85,10 +85,9 @@ function App() {
           <>
             <Avatar
               src={avatarSrc}
-              style={{float: "left", marginTop: "auto"}}
             />
             <p
-              style={{fontSize: "5px", float: "left", lineHeight: "32px", margin: "0px", marginLeft: "3px"}}
+              style={{fontSize: "5px"}}
             >
               {text}
             </p>
@@ -116,6 +115,45 @@ function App() {
       title: "レベル",
       dataIndex: "level",
       key: "level"
+    },
+    {
+      title: "参加者",
+      dataIndex: "participants",
+      key: "participants",
+      render: data => {
+        if(data == null) return <Spin />
+        else if(data == "非公開") return "非公開"
+        else return (
+          <div style={{flex: "left", display: "flex"}}>
+            {data.map(user =>
+              <div style={{marginRight: "10px"}}>
+                <div>{user.age ? user.age.name : "非公開"}</div>
+                {
+                  (!user.gender) ? <div>非公開</div>
+                    : (user.gender.name == "男性") ? <div style={{color: "skyblue"}}>男性</div>
+                      : <div style={{color: "hotpink"}}>女性</div>
+                }
+                <div>{user.level ? "Lv." + user.level.id : "非公開"}</div>
+              </div>
+            )}
+          </div>
+        )
+      }
+    },
+    {
+      title: "参加費",
+      dataIndex: "id",
+      key: "price",
+      render: (data, event) => {
+        if (event.detail == undefined) return <Spin/>
+        else {
+          const price = event.detail.priceOverview
+          // 時間計算のため一時的に2023/1/1を入れている
+          const startAt = dayjs("2023/01/01 " + event.datetime.split(' ')[1].split("-")[0])
+          const endAt = dayjs("2023/01/01 " + event.datetime.split(' ')[1].split("-")[1])
+          return price + "円 / " + endAt.diff(startAt, "h", true) + "時間"
+        }
+      }
     }
   ]
 
@@ -127,7 +165,13 @@ function App() {
     datetime: event.datetimeForDisplay,
     title: event.eventTitle,
     level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id,
-    isFull: event.isFull
+    isFull: event.isFull,
+    detail: event.detail,
+    participants: !("detail" in event) ?
+      null
+      : event.detail.participantList.length == 0 ?
+        "非公開"
+        : event.detail.participantList.map(participant => participant.user)
   }))
 
   const places = events
