@@ -1,13 +1,22 @@
+import * as React from 'react'
 import { useEffect, useState } from 'react'
 import './App.css';
+
+import GoogleMap from './Components/GoogleMap'
 
 import { Row, Col, Button, Table, Avatar } from 'antd'
 
 function App() {
   const [events, setEvents] = useState([])
   useEffect(() => {
+    const today = new Date()
+    const month = ("0" + (today.getMonth() + 1)).slice(-2)
+    const date =  ("0" + today.getDate()).slice(-2)
+
+    const params = {day: today.getFullYear() + "-" + month + "-" + date}
+    const query = new URLSearchParams(params)
     const searchEvents = async() => {
-      let response =  await fetch("http://localhost:5000/search")
+      let response =  await fetch("http://localhost:5000/search?"+query)
       const newEvents = await response.json()
       setEvents(newEvents)
     }
@@ -72,7 +81,14 @@ function App() {
             </Col>
           </Row>
 
-          <Table dataSource={data} columns={columns} />
+          <Row>
+            <Col>
+              <Table dataSource={data} columns={columns} />
+            </Col>
+            <Col>
+              <GoogleMap />
+            </Col>
+          </Row>
         </div>
       </body>
     </div>

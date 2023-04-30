@@ -29,3 +29,4 @@ group :development do
 end
 
 gem "foreman"
+gem "rack-cors"
