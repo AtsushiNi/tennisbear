@@ -1,0 +1,13 @@
+.table-row-dark {
+  background-color: #ccc
+}
+.table-row-dark .ant-table-cell-row-hover {
+  background-color: #aaa !important
+}
+.table-row-light .ant-table-cell-row-hover {
+  background-color: #eee !important
+}
+.ant-table-cell {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important
+}

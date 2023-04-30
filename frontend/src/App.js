@@ -12,6 +12,7 @@ function App() {
   const [events, setEvents] = useState([])
   const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
   const [isOpen, setIsOpen] = useState(true)
+  const [pagination, setPagination] = useState({current: 1, pageSize: 10})
 
   const onChangeDate = date => {
     if(!date) {
@@ -50,7 +51,19 @@ function App() {
       dataIndex: "organizer",
       key: "organizer",
       render: (text, { avatarSrc }) => {
-        if(text.length <= 10) return <><Avatar src={avatarSrc} /><p style={{fontSize: "5px"}}>{text}</p></>
+        if(text.length <= 10) return (
+          <>
+            <Avatar
+              src={avatarSrc}
+              style={{float: "left", marginTop: "auto"}}
+            />
+            <p
+              style={{fontSize: "5px", float: "left", lineHeight: "32px", margin: "0px", marginLeft: "3px"}}
+            >
+              {text}
+            </p>
+          </>
+        )
         return <><Avatar src={avatarSrc} /><p style={{fontSize: "5px"}}>{text.substr(0,8) + ".."}</p></>
       }
     },
@@ -82,8 +95,13 @@ function App() {
     organizer: event.organizer.name,
     datetime: event.datetimeForDisplay,
     title: event.eventTitle,
-    level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id
+    level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id,
+    isFull: event.isFull
   }))
+
+  const places = events
+    .slice((pagination.current-1) * pagination.pageSize, pagination.current * pagination.pageSize)
+    .map(event =>  ({lat: event.place.lat, lng: event.place.lng}))
 
   const theme = {
     token: {
@@ -118,10 +136,18 @@ function App() {
 
           <Row>
             <Col>
-              <Table dataSource={data} columns={columns} />
+              <Table
+                dataSource={data}
+                columns={columns}
+                rowClassName={(record, index) => {
+                  if(record.isFull) return "table-row-dark"
+                  else return "table-row-light"
+                  }}
+                onChange={pagination => setPagination(pagination)}
+                />
             </Col>
             <Col>
-              <GoogleMap />
+              <GoogleMap places={places} />
             </Col>
           </Row>
         </div>

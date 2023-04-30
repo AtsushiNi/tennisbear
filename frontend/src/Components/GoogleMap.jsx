@@ -16,19 +16,21 @@ const position = {
   lng: -38.5
 };
 
-function GoogleMap() {
+function GoogleMap(props) {
   return (
     <LoadScript
       googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAP_API_KEY}
     >
       <Map
         mapContainerStyle={containerStyle}
-        center={center}
+        center={props.places[0]}
         zoom={10}
       >
-        <Marker
-          position={position}
-        />
+        {props.places.map(place => (
+          <Marker
+            position={place}
+          />
+        ))}
       </Map>
     </LoadScript>
   )
