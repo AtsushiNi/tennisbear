@@ -1,24 +1,24 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## 概要
+[テニスベア](https://www.tennisbear.net/event/prefecture/pref13)のイベント検索が使いにくかったので、自分用を作成
 
-Things you may want to cover:
+## 構成
+- バックエンド：Ruby on Rails
+  - CORS対策でテニスベアのAPIをバックエンドから叩く
+- フロントエンド：React
+  - GoogleMapはreact-google-maps/apiを使用
+- foremanを使って1コマンドでRailsとReactを起動
 
-* Ruby version
+## 使用方法
+1. frontend/.envに以下を記述
+```
+REACT_APP_GOOGLE_MAP_API_KEY=Google Cloud プラットフォームのAPIキー
+```
 
-* System dependencies
+2. ルートディレクトリで以下を実行
+```
+bundle exec foreman start
+```
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## ディレクトリ構成
