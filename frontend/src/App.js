@@ -14,8 +14,12 @@ function App() {
   const [isOpen, setIsOpen] = useState(true)
   const [pagination, setPagination] = useState({current: 1, pageSize: 20})
   const [hoverIndex, setHoverIndex] = useState(null)
+
   const [timePeriodTypeList, setTimePeriodTypeList] = useState([])
   const [isOpenTimeSelector, setIsOpenTimeSelector] = useState(false)
+
+  const [levelList, setLevelList] = useState([6])
+  const [isOpenLevelSelector, setIsOpenLevelSelector] = useState(false)
 
   const toggleTime = time => {
     if(timePeriodTypeList.includes(time)) setTimePeriodTypeList(timePeriodTypeList.filter(item => item !== time))
@@ -24,6 +28,15 @@ function App() {
   const closeTimeSelector = () => {
     searchEvents()
     setIsOpenTimeSelector(false)
+  }
+
+  const toggleLevel = level => {
+    if(levelList.includes(level)) setLevelList(levelList.filter(item => item !== level))
+    else setLevelList([...levelList, level])
+  }
+  const closeLevelSelector = () => {
+    searchEvents()
+    setIsOpenLevelSelector(false)
   }
 
   const onChangeDate = date => {
@@ -44,7 +57,7 @@ function App() {
 
   // イベント一覧の取得
   const searchEvents = async() => {
-    const params = { date: date, isOpen: isOpen, timePeriodTypeList: timePeriodTypeList }
+    const params = { date: date, isOpen: isOpen, timePeriodTypeList: timePeriodTypeList, levelList: levelList }
     const query = new URLSearchParams(params)
 
     let response =  await fetch("http://localhost:5000/search?"+query)
@@ -163,7 +176,7 @@ function App() {
           // 時間計算のため一時的に2023/1/1を入れている
           const startAt = dayjs("2023/01/01 " + event.datetime.split(' ')[1].split("-")[0])
           const endAt = dayjs("2023/01/01 " + event.datetime.split(' ')[1].split("-")[1])
-          return price + "円 / " + endAt.diff(startAt, "h", true) + "時間"
+          return price + "円 / " + Math.round(endAt.diff(startAt, "h", true) * 10) / 10 + "時間"
         }
       }
     }
@@ -222,7 +235,7 @@ function App() {
                   募集中
                 </Button>
               </Row>
-              <Row style={{marginBottom: "60px"}}>
+              <Row style={{marginBottom: "20px"}}>
                 <Button
                   type={timePeriodTypeList.length ? "primary" : "default"}
                   onClick={() => setIsOpenTimeSelector(true)}
@@ -306,8 +319,89 @@ function App() {
                   </Row>
                 </Modal>
               </Row>
-              <Row>
-                <GoogleMap places={places} hoverIndex={hoverIndex}/>
+              <Row style={{marginBottom: "60px"}}>
+                <Button
+                  type={levelList.length ? "primary" : "default"}
+                  onClick={() => setIsOpenLevelSelector(true)}
+                  style={{width: "130px"}}
+                >
+                  レベル
+                </Button>
+                <Modal
+                  open={isOpenLevelSelector}
+                  onOk={closeLevelSelector}
+                  onCancel={closeLevelSelector}
+                >
+                  <Row style={{marginBottom: "15px"}}>
+                    <Button
+                      type={levelList.includes(1) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(1)}
+                    >
+                      Lv.1 はじめて
+                    </Button>
+                    <Button
+                      type={levelList.includes(2) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(2)}
+                    >
+                      Lv.2 初心者
+                    </Button>
+                    <Button
+                      type={levelList.includes(3) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(3)}
+                    >
+                      Lv.3 初級
+                    </Button>
+                  </Row>
+                  <Row style={{marginBottom: "15px"}}>
+                    <Button
+                      type={levelList.includes(4) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(4)}
+                    >
+                      Lv.4 初中級
+                    </Button>
+                    <Button
+                      type={levelList.includes(5) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(5)}
+                    >
+                      Lv.5 中級
+                    </Button>
+                    <Button
+                      type={levelList.includes(6) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(6)}
+                    >
+                      Lv.6 中上級
+                    </Button>
+                  </Row>
+                  <Row style={{marginBottom: "15px"}}>
+                    <Button
+                      type={levelList.includes(7) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(7)}
+                    >
+                      Lv.7 上級
+                    </Button>
+                    <Button
+                      type={levelList.includes(8) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(8)}
+                    >
+                      Lv.8 超上級
+                    </Button>
+                    <Button
+                      type={levelList.includes(9) ? "primary" : "default"}
+                      style={{width: "120px", marginRight: "10px"}}
+                      onClick={() => toggleLevel(9)}
+                    >
+                      Lv.9 プロ
+                    </Button>
+                  </Row>
+                </Modal>
               </Row>
             </Col>
 
@@ -332,6 +426,9 @@ function App() {
                 }}
                 />
             </Col>
+          </Row>
+          <Row>
+            <GoogleMap places={places} hoverIndex={hoverIndex}/>
           </Row>
         </div>
       </ConfigProvider>
