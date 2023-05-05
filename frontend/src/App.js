@@ -122,7 +122,7 @@ function App() {
       key: "participants",
       render: data => {
         if(data == null) return <Spin />
-        else if(data == "非公開") return <div style={{fontSize: "10px"}}>"非公開"</div>
+        else if(data == "非公開") return <div style={{fontSize: "10px"}}>非公開</div>
         else return (
           <div style={{flex: "left", display: "flex", fontSize: "10px"}}>
             {data.map(user =>
