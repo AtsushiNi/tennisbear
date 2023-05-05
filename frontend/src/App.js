@@ -4,7 +4,7 @@ import './App.css';
 
 import GoogleMap from './Components/GoogleMap'
 
-import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin } from 'antd'
+import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin, Modal } from 'antd'
 
 const dayjs = require("dayjs")
 
@@ -14,6 +14,17 @@ function App() {
   const [isOpen, setIsOpen] = useState(true)
   const [pagination, setPagination] = useState({current: 1, pageSize: 20})
   const [hoverIndex, setHoverIndex] = useState(null)
+  const [timePeriodTypeList, setTimePeriodTypeList] = useState([])
+  const [isOpenTimeSelector, setIsOpenTimeSelector] = useState(false)
+
+  const toggleTime = time => {
+    if(timePeriodTypeList.includes(time)) setTimePeriodTypeList(timePeriodTypeList.filter(item => item !== time))
+    else setTimePeriodTypeList([...timePeriodTypeList, time])
+  }
+  const closeTimeSelector = () => {
+    searchEvents()
+    setIsOpenTimeSelector(false)
+  }
 
   const onChangeDate = date => {
     if(!date) {
@@ -32,19 +43,20 @@ function App() {
   }
 
   // イベント一覧の取得
-  useEffect(() => {
-    const params = { date: date, isOpen: isOpen }
+  const searchEvents = async() => {
+    const params = { date: date, isOpen: isOpen, timePeriodTypeList: timePeriodTypeList }
     const query = new URLSearchParams(params)
 
-    const searchEvents = async() => {
-      let response =  await fetch("http://localhost:5000/search?"+query)
-      const newEvents = await response.json()
+    let response =  await fetch("http://localhost:5000/search?"+query)
+    const newEvents = await response.json()
 
-      console.log("search with tennisbear API")
+    console.log("search with tennisbear API")
 
-      setEvents(newEvents)
-      fetchEventDetails(newEvents)
-    }
+    setEvents(newEvents)
+    fetchEventDetails(newEvents)
+  }
+
+  useEffect(() => {
     searchEvents()
 
   }, [date, isOpen])
@@ -201,7 +213,7 @@ function App() {
                   style={{width: "130px"}}
                 />
               </Row>
-              <Row style={{marginBottom: "60px"}}>
+              <Row style={{marginBottom: "20px"}}>
                 <Button
                   type={isOpen ? "primary" : "default"}
                   onClick={onChangeIsOpen}
@@ -209,6 +221,90 @@ function App() {
                 >
                   募集中
                 </Button>
+              </Row>
+              <Row style={{marginBottom: "60px"}}>
+                <Button
+                  type={timePeriodTypeList.length ? "primary" : "default"}
+                  onClick={() => setIsOpenTimeSelector(true)}
+                  style={{width: "130px"}}
+                >
+                  時間
+                </Button>
+                <Modal
+                  open={isOpenTimeSelector}
+                  onOk={closeTimeSelector}
+                  onCancel={closeTimeSelector}
+                >
+                  <Row style={{marginBottom: "15px"}}>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_6_8") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_6_8")}
+                    >
+                      6:00~
+                    </Button>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_8_10") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_8_10")}
+                    >
+                      8:00~
+                    </Button>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_10_12") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_10_12")}
+                    >
+                      10:00~
+                    </Button>
+                  </Row>
+                  <Row style={{marginBottom: "15px"}}>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_12_14") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_12_14")}
+                    >
+                      12:00~
+                    </Button>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_14_16") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_14_16")}
+                    >
+                      14:00~
+                    </Button>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_16_18") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_16_18")}
+                    >
+                      16:00~
+                    </Button>
+                  </Row>
+                  <Row style={{marginBottom: "15px"}}>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_18_20") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_18_20")}
+                    >
+                      18:00~
+                    </Button>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_20_22") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_20_22")}
+                    >
+                      20:00~
+                    </Button>
+                    <Button
+                      type={timePeriodTypeList.includes("PERIOD_22_24") ? "primary" : "default"}
+                      style={{width: "90px", marginRight: "10px"}}
+                      onClick={() => toggleTime("PERIOD_22_24")}
+                    >
+                      22:00~
+                    </Button>
+                  </Row>
+                </Modal>
               </Row>
               <Row>
                 <GoogleMap places={places} hoverIndex={hoverIndex}/>

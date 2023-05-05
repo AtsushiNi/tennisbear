@@ -56,6 +56,7 @@ class ApplicationController < ActionController::API
 
     body[:dateList] = [params[:date]]
     body[:isOpen] = params[:isOpen]
+    body[:timePeriodTypeList] = params[:timePeriodTypeList].split(",")
     req.body = JSON.generate(body)
 
     res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
