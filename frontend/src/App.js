@@ -4,7 +4,7 @@ import './App.css';
 
 import GoogleMap from './Components/GoogleMap'
 
-import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin, Modal } from 'antd'
+import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin, Modal, Slider } from 'antd'
 
 const dayjs = require("dayjs")
 
@@ -23,6 +23,12 @@ function App() {
   const [isOpenLevelSelector, setIsOpenLevelSelector] = useState(false)
 
   const [isExceptFifty, setIsExceptFifty] = useState(true)
+
+  const [priceRange, setPriseRange] = useState([0, 3000])
+
+  const handleChangePriceRange = range => {
+    setPriseRange(range)
+  }
 
   const toggleIsExceptFifty = () => {
     if(isExceptFifty) setIsExceptFifty(false)
@@ -113,7 +119,7 @@ function App() {
   }, [pagination, showingEventIDs])
 
   useEffect(() => {
-    let showingEvents = events
+    let showingEvents = events.filter(event => !event.detail || priceRange[0] <= event.detail.priceOverview && event.detail.priceOverview <= priceRange[1])
     if(isExceptFifty) {
       showingEvents = showingEvents.filter(event => !event.detail || !event.detail.participantList || event.detail.participantList.every(participant => !participant.user.age || !(["50代", "60代", "70代"].includes(participant.user.age.name))))
     }
@@ -122,7 +128,7 @@ function App() {
       .slice((pagination.current-1) * pagination.pageSize, pagination.current * pagination.pageSize)
       .map(event => event.id)
     setShowingEventIDs(ids)
-  }, [events, pagination])
+  }, [events, pagination, isExceptFifty, priceRange])
 
   const columns = [
     {
@@ -223,6 +229,8 @@ function App() {
           "非公開"
           : event.detail.participantList.map(participant => participant.user)
     }))
+    .filter(event => !event.detail || priceRange[0] <= event.detail.priceOverview && event.detail.priceOverview <= priceRange[1])
+
   if(isExceptFifty) {
     data = data.filter(event => !event.participants || event.participants === "非公開" || event.participants.every(user => !user.age || !(["50代", "60代", "70代"].includes(user.age.name))))
   }
@@ -431,7 +439,7 @@ function App() {
                   </Row>
                 </Modal>
               </Row>
-              <Row style={{marginBottom: "60px"}}>
+              <Row style={{marginBottom: "20px"}}>
                 <Button
                   type={isExceptFifty ? "primary" : "default"}
                   onClick={toggleIsExceptFifty}
@@ -439,6 +447,20 @@ function App() {
                 >
                   50代以上を除く
                 </Button>
+              </Row>
+              <Row>
+                参加費
+              </Row>
+              <Row style={{marginBotom: "60px"}}>
+                <Slider
+                  range
+                  max={5000}
+                  step={100}
+                  marks={{[priceRange[0]]:priceRange[0], [priceRange[1]]:priceRange[1]}}
+                  defaultValue={priceRange}
+                  style={{width: "130px"}}
+                  onAfterChange={handleChangePriceRange}
+                />
               </Row>
             </Col>
 
