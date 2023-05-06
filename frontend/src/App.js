@@ -10,6 +10,7 @@ const dayjs = require("dayjs")
 
 function App() {
   const [events, setEvents] = useState([])
+  const [showingEventIDs, setShowingEventIDs] = useState([])
   const [date, setDate] = useState(dayjs().format("YYYY-MM-DD"))
   const [isOpen, setIsOpen] = useState(true)
   const [pagination, setPagination] = useState({current: 1, pageSize: 20})
@@ -20,6 +21,13 @@ function App() {
 
   const [levelList, setLevelList] = useState([6])
   const [isOpenLevelSelector, setIsOpenLevelSelector] = useState(false)
+
+  const [isExceptFifty, setIsExceptFifty] = useState(true)
+
+  const toggleIsExceptFifty = () => {
+    if(isExceptFifty) setIsExceptFifty(false)
+    else setIsExceptFifty(true)
+  }
 
   const toggleTime = time => {
     if(timePeriodTypeList.includes(time)) setTimePeriodTypeList(timePeriodTypeList.filter(item => item !== time))
@@ -66,7 +74,6 @@ function App() {
     console.log("search with tennisbear API")
 
     setEvents(newEvents)
-    fetchEventDetails(newEvents)
   }
 
   useEffect(() => {
@@ -74,18 +81,23 @@ function App() {
 
   }, [date, isOpen])
 
-  const fetchEventDetails = async(oldEvents = events) => {
-    console.log("fetch Event details")
-    const ids = oldEvents
-      .slice((pagination.current-1) * pagination.pageSize, pagination.current * pagination.pageSize)
+  const fetchEventDetails = async() => {
+    if(!events) return
+
+    const ids = events
+      .filter(event => showingEventIDs.includes(event.id))
       .filter(event => !("detail" in event))
       .map(event => event.id)
+
+    if(ids.length === 0) return
+
+    console.log("fetch Event details")
     const details = await Promise.all(
       ids.map(id => fetch("http://localhost:5000/events/" + id).then(res => res.json()))
     )
 
     // state更新
-    const newEvents = oldEvents.map(event => {
+    const newEvents = events.map(event => {
       if(ids.includes(event.id)) {
         event.detail = details.find(detail => detail.id === event.id)
         return event
@@ -98,7 +110,19 @@ function App() {
   // イベント詳細一覧の取得
   useEffect(() => {
     fetchEventDetails()
-  }, [pagination])
+  }, [pagination, showingEventIDs])
+
+  useEffect(() => {
+    let showingEvents = events
+    if(isExceptFifty) {
+      showingEvents = showingEvents.filter(event => !event.detail || !event.detail.participantList || event.detail.participantList.every(participant => !participant.user.age || !(["50代", "60代", "70代"].includes(participant.user.age.name))))
+    }
+
+    const ids = showingEvents
+      .slice((pagination.current-1) * pagination.pageSize, pagination.current * pagination.pageSize)
+      .map(event => event.id)
+    setShowingEventIDs(ids)
+  }, [events, pagination])
 
   const columns = [
     {
@@ -147,7 +171,7 @@ function App() {
       key: "participants",
       render: data => {
         if(data == null) return <Spin />
-        else if(data == "非公開") return <div style={{fontSize: "10px"}}>非公開</div>
+        else if(data === "非公開") return <div style={{fontSize: "10px"}}>非公開</div>
         else return (
           <div style={{flex: "left", display: "flex", fontSize: "10px"}}>
             {data.map(user =>
@@ -155,7 +179,7 @@ function App() {
                 <div>{user.age ? user.age.name : "非公開"}</div>
                 {
                   (!user.gender) ? <div>非公開</div>
-                    : (user.gender.name == "男性") ? <div style={{color: "skyblue"}}>男性</div>
+                    : (user.gender.name === "男性") ? <div style={{color: "skyblue"}}>男性</div>
                       : <div style={{color: "hotpink"}}>女性</div>
                 }
                 <div>{user.level ? "Lv." + user.level.id : "非公開"}</div>
@@ -170,7 +194,7 @@ function App() {
       dataIndex: "id",
       key: "price",
       render: (data, event) => {
-        if (event.detail == undefined) return <Spin/>
+        if (event.detail === undefined) return <Spin/>
         else {
           const price = event.detail.priceOverview
           // 時間計算のため一時的に2023/1/1を入れている
@@ -182,22 +206,26 @@ function App() {
     }
   ]
 
-  const data = events.map((event, index) => ({
-    key: index,
-    id: event.id,
-    avatarSrc: event.imageUrl,
-    organizer: event.organizer.name,
-    datetime: event.datetimeForDisplay,
-    title: event.eventTitle,
-    level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id,
-    isFull: event.isFull,
-    detail: event.detail,
-    participants: !("detail" in event) ?
-      null
-      : event.detail.participantList.length == 0 ?
-        "非公開"
-        : event.detail.participantList.map(participant => participant.user)
-  }))
+  let data = events
+    .map((event, index) => ({
+      key: index,
+      id: event.id,
+      avatarSrc: event.imageUrl,
+      organizer: event.organizer.name,
+      datetime: event.datetimeForDisplay,
+      title: event.eventTitle,
+      level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id,
+      isFull: event.isFull,
+      detail: event.detail,
+      participants: !("detail" in event) ?
+        null
+        : event.detail.participantList.length === 0 ?
+          "非公開"
+          : event.detail.participantList.map(participant => participant.user)
+    }))
+  if(isExceptFifty) {
+    data = data.filter(event => !event.participants || event.participants === "非公開" || event.participants.every(user => !user.age || !(["50代", "60代", "70代"].includes(user.age.name))))
+  }
 
   const places = events
     .slice((pagination.current-1) * pagination.pageSize, pagination.current * pagination.pageSize)
@@ -319,7 +347,7 @@ function App() {
                   </Row>
                 </Modal>
               </Row>
-              <Row style={{marginBottom: "60px"}}>
+              <Row style={{marginBottom: "20px"}}>
                 <Button
                   type={levelList.length ? "primary" : "default"}
                   onClick={() => setIsOpenLevelSelector(true)}
@@ -403,6 +431,15 @@ function App() {
                   </Row>
                 </Modal>
               </Row>
+              <Row style={{marginBottom: "60px"}}>
+                <Button
+                  type={isExceptFifty ? "primary" : "default"}
+                  onClick={toggleIsExceptFifty}
+                  style={{width: "130px"}}
+                >
+                  50代以上を除く
+                </Button>
+              </Row>
             </Col>
 
             <Col>
@@ -427,9 +464,11 @@ function App() {
                 />
             </Col>
           </Row>
-          <Row>
-            <GoogleMap places={places} hoverIndex={hoverIndex}/>
-          </Row>
+          {/*
+            <row>
+              <googlemap places={places} hoverindex={hoverindex}/>
+            </row>
+          */}
         </div>
       </ConfigProvider>
     </div>
