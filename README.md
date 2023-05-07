@@ -25,3 +25,32 @@ bundle exec foreman start
 ```
 
 ## ディレクトリ構成
+```
+.
+├── .git
+├── .gitignore
+├── .ruby-version
+├── Gemfile
+├── Gemfile.lock
+├── Procfile
+├── README.md
+├── app
+│   └── controllers
+│       ├── application_controller.rb
+│       └── events_controller.rb
+├── config
+│   └── routes.rb
+├── frontend
+│   ├── .env
+│   ├── node_modules
+│   ├── package-lock.json
+│   ├── package.json
+│   └── src
+│       ├── App.css
+│       ├── App.js
+│       ├── Components
+│       │   └── GoogleMap.jsx
+│       ├── index.css
+│       ├── index.js
+└── vendor
+```
