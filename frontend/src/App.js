@@ -4,7 +4,7 @@ import './App.css';
 
 import GoogleMap from './Components/GoogleMap'
 
-import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin, Modal, Slider } from 'antd'
+import { ConfigProvider, Row, Col, Button, Table, Avatar, DatePicker, Spin, Modal, Slider, Popover } from 'antd'
 
 const dayjs = require("dayjs")
 
@@ -374,13 +374,15 @@ function App() {
                 </Modal>
               </Row>
               <Row style={{marginBottom: "20px"}}>
-                <Button
-                  type={levelList.length ? "primary" : "default"}
-                  onClick={() => setIsOpenLevelSelector(true)}
-                  style={{width: "130px"}}
-                >
-                  レベル
-                </Button>
+                <Popover content={levelList.map(level => "Lv."+level).join(" & ")}>
+                  <Button
+                    type={levelList.length ? "primary" : "default"}
+                    onClick={() => setIsOpenLevelSelector(true)}
+                    style={{width: "130px"}}
+                  >
+                    レベル
+                  </Button>
+                </Popover>
                 <Modal
                   open={isOpenLevelSelector}
                   onOk={closeLevelSelector}
