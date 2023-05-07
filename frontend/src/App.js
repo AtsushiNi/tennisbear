@@ -121,7 +121,7 @@ function App() {
   useEffect(() => {
     let showingEvents = events.filter(event => !event.detail || priceRange[0] <= event.detail.priceOverview && event.detail.priceOverview <= priceRange[1])
     if(isExceptFifty) {
-      showingEvents = showingEvents.filter(event => !event.detail || !event.detail.participantList || event.detail.participantList.every(participant => !participant.user.age || !(["50代", "60代", "70代"].includes(participant.user.age.name))))
+      showingEvents = showingEvents.filter(event => !("detail" in event) || !event.detail.participantList || event.detail.participantList.every(participant => !participant.user.age || !(["50代", "60代", "70代"].includes(participant.user.age.name))))
     }
 
     const ids = showingEvents
@@ -149,6 +149,22 @@ function App() {
           </>
         )
         return <><Avatar src={avatarSrc} /><p style={{fontSize: "5px"}}>{text.substr(0,8) + ".."}</p></>
+      }
+    },
+    {
+      title: "サークル",
+      dataIndex: "circleName",
+      key: "circle",
+      render: (text, { circleAvatarSrc }) => {
+        if(!text) return <></>
+        return (
+          <>
+            <Avatar src={circleAvatarSrc} />
+            <p style={{fontSize: "5px"}}>
+              {text.length <= 10 ? text : text.substr(0,8) + ".."}
+            </p>
+          </>
+        )
       }
     },
     {
@@ -218,6 +234,8 @@ function App() {
       id: event.id,
       avatarSrc: event.imageUrl,
       organizer: event.organizer.name,
+      circleName: event.circle && event.circle.name,
+      circleAvatarSrc: event.circle && event.circle.imageUrl,
       datetime: event.datetimeForDisplay,
       title: event.eventTitle,
       level: "Lv." + event.minLevel.id + "~" + event.maxLevel.id,
