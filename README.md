@@ -32,12 +32,12 @@ bundle exec foreman start
 ├── .ruby-version
 ├── Gemfile
 ├── Gemfile.lock
-├── Procfile
+├── Procfile          // 起動コマンドの設定
 ├── README.md
 ├── app
 │   └── controllers
-│       ├── application_controller.rb
-│       └── events_controller.rb
+│       ├── application_controller.rb  // イベント一覧の取得
+│       └── events_controller.rb       // イベント詳細の取得
 ├── config
 │   └── routes.rb
 ├── frontend
@@ -47,9 +47,9 @@ bundle exec foreman start
 │   ├── package.json
 │   └── src
 │       ├── App.css
-│       ├── App.js
+│       ├── App.js         // フロントの実装
 │       ├── Components
-│       │   └── GoogleMap.jsx
+│       │   └── GoogleMap.jsx // 画面に入らなかったのでコメントアウト
 │       ├── index.css
 │       ├── index.js
 └── vendor
