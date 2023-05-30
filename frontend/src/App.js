@@ -489,7 +489,7 @@ function App() {
                 dataSource={data}
                 columns={columns}
                 pagination={{pageSize: 20}}
-                scroll={{y: 600}}
+                scroll={{y: 630}}
                 style={{marginRight: "50px"}}
                 rowClassName={(record, index) => {
                   if(record.isFull) return "table-row-dark"

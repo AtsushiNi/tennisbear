@@ -18,3 +18,7 @@ table{
 .ant-table-wrapper {
   margin: 0px !important;
 }
+
+.ant-table-body {
+  border: solid 1px #F0F0F0;
+}
